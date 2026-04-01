@@ -2,6 +2,8 @@
 
 Windows is now supported for NPM-based installs of Claude Code — thanks @jtuskan ([#5](https://github.com/cpaczek/any-buddy/pull/5))!
 
+macOS ad-hoc code signing after patching — thanks @aaronepinto ([#3](https://github.com/cpaczek/any-buddy/pull/3))!
+
 Pick any Claude Code companion pet you want.
 
 ```bash
