@@ -1,6 +1,6 @@
 {
   "name": "any-buddy",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Pick any Claude Code companion pet you want",
   "type": "module",
   "bin": {
