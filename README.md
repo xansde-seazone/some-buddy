@@ -53,7 +53,7 @@ The interactive flow also lets you **rename** your companion — it edits `~/.cl
 ```bash
 # Clone and install
 git clone https://github.com/cpaczek/any-buddy.git
-cd claude-code-any-buddy
+cd any-buddy
 pnpm install
 
 # Link globally (optional, enables the apply command for auto-patch hook)
@@ -63,7 +63,7 @@ pnpm link --global
 Or via npm:
 
 ```bash
-npm install -g claude-code-any-buddy
+npm install -g any-buddy
 ```
 
 ## Usage
