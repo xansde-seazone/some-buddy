@@ -57,7 +57,7 @@ export async function runRestore(): Promise<void> {
   if (Object.keys(profiles).length > 0) {
     console.log(
       chalk.dim(
-        `  Profiles preserved (${Object.keys(profiles).length} saved). Use any-buddy switch to reactivate.`,
+        `  Buddies preserved (${Object.keys(profiles).length} saved). Use any-buddy buddies to reactivate.`,
       ),
     );
   }

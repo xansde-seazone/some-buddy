@@ -55,7 +55,7 @@ export async function runGalleryTUI(
           borderStyle: 'rounded',
           border: true,
           borderColor: BORDER_COLOR,
-          title: ' any-buddy switch ',
+          title: ' any-buddy buddies ',
           titleAlignment: 'center',
           padding: 0,
         },

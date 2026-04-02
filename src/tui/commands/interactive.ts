@@ -240,7 +240,7 @@ export async function runInteractive(flags: CliFlags = {}): Promise<void> {
   // --- Save as profile (before patch decision — the salt search is the expensive part) ---
   const profileName = (
     await input({
-      message: 'Save as profile? (name, or blank to skip)',
+      message: 'Save this buddy? (name, or blank to skip)',
       default: '',
     })
   ).trim();
@@ -258,7 +258,7 @@ export async function runInteractive(flags: CliFlags = {}): Promise<void> {
       personality: null,
       createdAt: new Date().toISOString(),
     });
-    console.log(chalk.green(`  Saved profile "${profileName}"`));
+    console.log(chalk.green(`  Saved buddy "${profileName}"`));
   }
 
   // --- Apply now? ---
@@ -281,7 +281,7 @@ export async function runInteractive(flags: CliFlags = {}): Promise<void> {
 
   if (!applyNow) {
     if (profileName) {
-      console.log(chalk.dim('  Use any-buddy switch to activate it later.\n'));
+      console.log(chalk.dim('  Use any-buddy buddies to activate it later.\n'));
     } else {
       console.log(chalk.dim('  Not saved. Run any-buddy again to find another.\n'));
     }

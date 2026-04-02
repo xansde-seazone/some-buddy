@@ -37,7 +37,7 @@ async function runSequentialSwitch(entries: GalleryEntry[]): Promise<string | nu
   });
 
   const choice = await select({
-    message: 'Switch to profile',
+    message: 'Choose a buddy',
     choices,
   });
 
@@ -56,7 +56,7 @@ export async function runSwitch(): Promise<void> {
   const profiles = config?.profiles ?? {};
 
   if (Object.keys(profiles).length === 0) {
-    console.log(chalk.dim('  No saved profiles. Run any-buddy to create one.\n'));
+    console.log(chalk.dim('  No saved buddies. Run any-buddy to create one.\n'));
     return;
   }
 
@@ -120,7 +120,7 @@ export async function runSwitch(): Promise<void> {
   const newSalt = isDefault ? ORIGINAL_SALT : config?.profiles[selectedName]?.salt;
 
   if (!newSalt) {
-    console.error(chalk.red(`\n  Profile "${selectedName}" not found.\n`));
+    console.error(chalk.red(`\n  Buddy "${selectedName}" not found.\n`));
     return;
   }
 

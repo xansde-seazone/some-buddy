@@ -109,7 +109,7 @@ export function getActiveProfile(): string | null {
 export function switchToProfile(name: string): PetConfigV2 {
   const config = loadPetConfigV2();
   if (!config?.profiles[name]) {
-    throw new Error(`Profile "${name}" not found`);
+    throw new Error(`Buddy "${name}" not found`);
   }
 
   config.previousSalt = config.salt;
@@ -125,7 +125,7 @@ export function deleteProfile(name: string): void {
   const config = loadPetConfigV2();
   if (!config?.profiles[name]) return;
   if (config.activeProfile === name) {
-    throw new Error(`Cannot delete the active profile "${name}". Switch to another first.`);
+    throw new Error(`Cannot delete the active buddy "${name}". Switch to another first.`);
   }
   config.profiles = Object.fromEntries(
     Object.entries(config.profiles).filter(([key]) => key !== name),

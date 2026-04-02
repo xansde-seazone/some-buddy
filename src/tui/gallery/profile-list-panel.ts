@@ -74,7 +74,7 @@ export function createProfileListPanel(parent: OTUIRenderable): ProfileListPanel
       borderStyle: 'rounded',
       border: true,
       borderColor: BORDER_COLOR,
-      title: ' Profiles ',
+      title: ' Buddies ',
       titleAlignment: 'center',
       flexDirection: 'column',
       width: 30,
