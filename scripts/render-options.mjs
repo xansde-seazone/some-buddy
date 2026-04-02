@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Renders rarity, eye, and hat options for README screenshots
 import chalk from 'chalk';
-import { EYES, HATS, RARITIES, RARITY_STARS, RARITY_WEIGHTS } from '../lib/constants.mjs';
-import { renderSprite } from '../lib/sprites.mjs';
+import { EYES, HATS, RARITIES, RARITY_STARS, RARITY_WEIGHTS } from '../dist/constants.js';
+import { renderSprite } from '../dist/sprites/index.js';
 
 const RARITY_CHALK = {
   common: chalk.gray,

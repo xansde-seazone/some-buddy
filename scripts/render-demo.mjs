@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Renders a mock demo of the full flow for README screenshot
 import chalk from 'chalk';
-import { renderSprite } from '../lib/sprites.mjs';
+import { renderSprite } from '../dist/sprites/index.js';
 
 const RARITY_CHALK = {
   common: chalk.gray,

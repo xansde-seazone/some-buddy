@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr:*)",
+      "Bash(pnpm install:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:opentui.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.mintlify.com)",
+      "WebFetch(domain:deepwiki.com)"
+    ]
+  }
+}

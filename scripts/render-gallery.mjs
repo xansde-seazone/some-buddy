@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Renders all species in a grid for README screenshots
 import chalk from 'chalk';
-import { SPECIES, EYES, HATS, RARITIES, RARITY_STARS, RARITY_WEIGHTS } from '../lib/constants.mjs';
-import { renderSprite, renderFace } from '../lib/sprites.mjs';
+import { SPECIES, EYES, HATS, RARITIES, RARITY_STARS, RARITY_WEIGHTS } from '../dist/constants.js';
+import { renderSprite, renderFace } from '../dist/sprites/index.js';
 
 const RARITY_CHALK = {
   common: chalk.gray,
