@@ -547,6 +547,3 @@ export function createSelectionPanel(
     getState: () => ({ ...state }),
   };
 }
-
-// Export option generators for testing
-export { speciesOptions, eyeOptions, rarityOptions, hatOptions, statOptions };

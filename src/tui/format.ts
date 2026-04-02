@@ -1,6 +1,5 @@
 import chalk from 'chalk';
-import type { Bones, Rarity } from '@/types.js';
-import { renderSprite } from '@/sprites/index.js';
+import type { Rarity } from '@/types.js';
 
 export function progressBar(pct: number, width: number): string {
   const filled = Math.min(width, Math.round((pct / 100) * width));
@@ -21,29 +20,3 @@ export const RARITY_CHALK: Record<Rarity, (s: string) => string> = {
   epic: chalk.magenta,
   legendary: chalk.yellow,
 };
-
-export function colorize(text: string, rarity: Rarity): string {
-  return (RARITY_CHALK[rarity] || chalk.white)(text);
-}
-
-export function formatSprite(bones: Bones, frame = 0): string {
-  return renderSprite(bones, frame).join('\n');
-}
-
-export function spritePreview(
-  species: Bones['species'],
-  eye: Bones['eye'],
-  hat: Bones['hat'],
-  rarity: Bones['rarity'],
-): string {
-  const bones: Bones = {
-    species,
-    eye,
-    hat: rarity === 'common' ? 'none' : hat,
-    rarity,
-    shiny: false,
-    stats: {},
-  };
-  const lines = renderSprite(bones, 0);
-  return lines.map((l) => l.trimEnd()).join('\n');
-}

@@ -18,6 +18,5 @@ export const DISABLED_BORDER = '#222222';
 export const DISABLED_TEXT = '#444444';
 export const DIM_COLOR = '#555555';
 export const TITLE_COLOR = '#FFFF00';
-export const HELP_COLOR = '#888888';
 export const TEXT_COLOR = '#CCCCCC';
 export const LABEL_COLOR = '#88CCFF';
