@@ -6,7 +6,7 @@ import type { PreflightResult } from '@/types.js';
 import { ORIGINAL_SALT, ISSUE_URL, diagnostics } from '@/constants.js';
 import { findClaudeBinary, findBunBinary } from './binary-finder.ts';
 import { restoreBinary } from './patch.ts';
-import { verifySalt, isNodeRuntime } from './salt-ops.ts';
+import { verifySalt, isNodeRuntime, getMinSaltCount } from './salt-ops.ts';
 import { getClaudeUserId, loadPetConfig } from '@/config/index.js';
 
 export function runPreflight({ requireBinary = true } = {}): PreflightResult {
@@ -66,7 +66,7 @@ export function runPreflight({ requireBinary = true } = {}): PreflightResult {
           const petConfig = loadPetConfig();
           if (petConfig?.salt) {
             const patchedResult = verifySalt(binaryPath, petConfig.salt);
-            const minCount = platform() === 'win32' ? 1 : 3;
+            const minCount = getMinSaltCount(binaryPath);
             if (patchedResult.found >= minCount) {
               saltCount = patchedResult.found;
               warnings.push(
@@ -113,9 +113,10 @@ export function runPreflight({ requireBinary = true } = {}): PreflightResult {
                 `\n  Please report this at: ${ISSUE_URL}`,
             );
           }
-        } else if (platform() !== 'win32' && saltCount < 3) {
+        } else if (saltCount < getMinSaltCount(binaryPath)) {
+          const expectedCount = getMinSaltCount(binaryPath);
           warnings.push(
-            `Salt found only ${saltCount} time(s) in binary (expected 3).\n` +
+            `Salt found only ${saltCount} time(s) in binary (expected ${expectedCount}).\n` +
               '  This might work but the patch may be incomplete.\n' +
               diagnostics(),
           );

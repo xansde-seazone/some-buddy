@@ -23,7 +23,7 @@ export function findAllOccurrences(buffer: Buffer, searchStr: string): number[] 
 export function getCurrentSalt(binaryPath: string): SaltState {
   const buf = readFileSync(binaryPath);
   const origOffsets = findAllOccurrences(buf, ORIGINAL_SALT);
-  const minCount = IS_WIN ? 1 : 3;
+  const minCount = getMinSaltCount(binaryPath);
   if (origOffsets.length >= minCount) {
     return { salt: ORIGINAL_SALT, patched: false, offsets: origOffsets };
   }
@@ -54,4 +54,8 @@ export function isClaudeRunning(binaryPath: string): boolean {
 
 export function isNodeRuntime(binaryPath: string): boolean {
   return binaryPath.endsWith('.js') || binaryPath.endsWith('.mjs');
+}
+
+export function getMinSaltCount(binaryPath: string): number {
+  return isNodeRuntime(binaryPath) ? 1 : 3;
 }

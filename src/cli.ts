@@ -104,6 +104,7 @@ try {
       await runInteractive(flags);
       break;
   }
+  process.exit(0);
 } catch (err) {
   const error = err as Error & { name: string };
   if (error.name === 'ExitPromptError') {

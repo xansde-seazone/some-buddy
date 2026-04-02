@@ -1,13 +1,10 @@
 import chalk from 'chalk';
-import { platform } from 'os';
 import { ORIGINAL_SALT } from '@/constants.js';
 import { findClaudeBinary } from '@/patcher/binary-finder.js';
-import { verifySalt } from '@/patcher/salt-ops.js';
+import { verifySalt, getMinSaltCount } from '@/patcher/salt-ops.js';
 import { patchBinary, restoreBinary } from '@/patcher/patch.js';
 import { savePetConfig, loadPetConfig, isHookInstalled, removeHook } from '@/config/index.js';
 import { banner, warnCodesign } from '../display.ts';
-
-const MIN_SALT_COUNT = platform() === 'win32' ? 1 : 3;
 
 export async function runRestore(): Promise<void> {
   banner();
@@ -16,7 +13,7 @@ export async function runRestore(): Promise<void> {
   const config = loadPetConfig();
   if (config?.salt && config.salt !== ORIGINAL_SALT) {
     const check = verifySalt(binaryPath, config.salt);
-    if (check.found >= MIN_SALT_COUNT) {
+    if (check.found >= getMinSaltCount(binaryPath)) {
       const restoreResult = patchBinary(binaryPath, config.salt, ORIGINAL_SALT);
       console.log(chalk.green('  Restored original pet salt.'));
       warnCodesign(restoreResult, binaryPath);

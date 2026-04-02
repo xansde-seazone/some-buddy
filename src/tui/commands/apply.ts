@@ -1,13 +1,15 @@
 import chalk from 'chalk';
-import { platform } from 'os';
 import { ORIGINAL_SALT } from '@/constants.js';
 import { findClaudeBinary } from '@/patcher/binary-finder.js';
-import { verifySalt, getCurrentSalt, isClaudeRunning } from '@/patcher/salt-ops.js';
+import {
+  verifySalt,
+  getCurrentSalt,
+  isClaudeRunning,
+  getMinSaltCount,
+} from '@/patcher/salt-ops.js';
 import { patchBinary } from '@/patcher/patch.js';
 import { loadPetConfig } from '@/config/index.js';
 import { warnCodesign } from '../display.ts';
-
-const MIN_SALT_COUNT = platform() === 'win32' ? 1 : 3;
 
 export async function runApply({ silent = false } = {}): Promise<void> {
   const config = loadPetConfig();
@@ -25,7 +27,7 @@ export async function runApply({ silent = false } = {}): Promise<void> {
   }
 
   const check = verifySalt(binaryPath, config.salt);
-  if (check.found >= MIN_SALT_COUNT) {
+  if (check.found >= getMinSaltCount(binaryPath)) {
     if (!silent) console.log(chalk.green('  Pet already applied.'));
     return;
   }
@@ -36,7 +38,7 @@ export async function runApply({ silent = false } = {}): Promise<void> {
   if (!oldSalt) {
     if (config.previousSalt) {
       const prevCheck = verifySalt(binaryPath, config.previousSalt);
-      if (prevCheck.found >= MIN_SALT_COUNT) {
+      if (prevCheck.found >= getMinSaltCount(binaryPath)) {
         const result = patchBinary(binaryPath, config.previousSalt, config.salt);
         if (!silent) {
           console.log(chalk.green(`  Re-patched (${result.replacements} replacements).`));
@@ -46,7 +48,7 @@ export async function runApply({ silent = false } = {}): Promise<void> {
       }
     }
     const origCheck = verifySalt(binaryPath, ORIGINAL_SALT);
-    if (origCheck.found >= MIN_SALT_COUNT) {
+    if (origCheck.found >= getMinSaltCount(binaryPath)) {
       const result = patchBinary(binaryPath, ORIGINAL_SALT, config.salt);
       if (!silent) {
         console.log(chalk.green(`  Patched after update (${result.replacements} replacements).`));

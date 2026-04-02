@@ -1,11 +1,16 @@
 import chalk from 'chalk';
 import { confirm, input, select } from '@inquirer/prompts';
-import { platform } from 'os';
 import type { CliFlags, DesiredTraits } from '@/types.js';
 import { SPECIES, EYES, RARITIES, HATS, STAT_NAMES, ORIGINAL_SALT } from '@/constants.js';
 import { roll } from '@/generation/index.js';
 import { findSalt, estimateAttempts } from '@/finder/index.js';
-import { isNodeRuntime, verifySalt, getCurrentSalt, isClaudeRunning } from '@/patcher/salt-ops.js';
+import {
+  isNodeRuntime,
+  verifySalt,
+  getCurrentSalt,
+  isClaudeRunning,
+  getMinSaltCount,
+} from '@/patcher/salt-ops.js';
 import { patchBinary } from '@/patcher/patch.js';
 import { runPreflight } from '@/patcher/preflight.js';
 import {
@@ -30,8 +35,6 @@ import {
   selectStat,
 } from '../prompts.ts';
 import { allTraitsFlagged } from '../builder/state.ts';
-
-const MIN_SALT_COUNT = platform() === 'win32' ? 1 : 3;
 
 async function runSequentialSelection(flags: CliFlags): Promise<DesiredTraits> {
   console.log(chalk.bold('  Choose your new pet:\n'));
@@ -224,7 +227,7 @@ export async function runInteractive(flags: CliFlags = {}): Promise<void> {
   } else if (existingConfig?.salt) {
     oldSalt = existingConfig.salt;
     const check = verifySalt(binaryPath, oldSalt);
-    if (check.found < MIN_SALT_COUNT) {
+    if (check.found < getMinSaltCount(binaryPath)) {
       console.error(chalk.red('  Cannot find current salt in binary. Try restoring first.'));
       return;
     }

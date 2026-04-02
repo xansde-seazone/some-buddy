@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findAllOccurrences, isNodeRuntime } from '@/patcher/salt-ops.js';
+import { findAllOccurrences, isNodeRuntime, getMinSaltCount } from '@/patcher/salt-ops.js';
 
 describe('findAllOccurrences', () => {
   it('finds all occurrences of a string in a buffer', () => {
@@ -46,5 +46,23 @@ describe('isNodeRuntime', () => {
 
   it('returns false for .ts files', () => {
     expect(isNodeRuntime('/path/to/cli.ts')).toBe(false);
+  });
+});
+
+describe('getMinSaltCount', () => {
+  it('returns 1 for .js files (Node runtime)', () => {
+    expect(getMinSaltCount('/path/to/cli.js')).toBe(1);
+  });
+
+  it('returns 1 for .mjs files (Node runtime)', () => {
+    expect(getMinSaltCount('/path/to/cli.mjs')).toBe(1);
+  });
+
+  it('returns 3 for compiled binaries', () => {
+    expect(getMinSaltCount('/path/to/claude')).toBe(3);
+  });
+
+  it('returns 3 for .exe files', () => {
+    expect(getMinSaltCount('/path/to/claude.exe')).toBe(3);
   });
 });
