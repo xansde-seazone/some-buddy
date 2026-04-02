@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { runInteractive, runPreview, runCurrent, runApply, runRestore, runRehatch } from '../lib/tui.mjs';
+import { runInteractive, runPreview, runCurrent, runApply, runRestore, runRehatch, runSwitch } from '../lib/tui.mjs';
 import { ISSUE_URL, diagnostics } from '../lib/constants.mjs';
 
 function parseArgs(argv) {
@@ -47,6 +47,9 @@ try {
     case 'rehatch':
       await runRehatch();
       break;
+    case 'switch':
+      await runSwitch();
+      break;
     case 'help':
       printHelp();
       break;
@@ -82,6 +85,7 @@ Usage:
   any-buddy current                  Show your current pet
   any-buddy apply [--silent]         Re-apply saved pet after update
   any-buddy restore                  Restore original pet
+  any-buddy switch                   Switch between saved profiles
   any-buddy rehatch                  Delete companion to re-hatch via /buddy
 
 Options:
