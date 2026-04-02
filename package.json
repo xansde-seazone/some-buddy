@@ -27,7 +27,9 @@
     "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
     "format:check": "prettier --check 'src/**/*.ts' 'tests/**/*.ts'",
     "typecheck": "tsc --noEmit",
-    "dev": "pnpm run build && node dist/cli.js",
+    "dev": "bun src/cli.ts",
+    "dev:build": "pnpm run build && bun dist/cli.js",
+    "dev:node": "pnpm run build && node dist/cli.js",
     "prepublishOnly": "npm run build",
     "prepare": "husky"
   },
@@ -48,6 +50,7 @@
   "license": "WTFPL",
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",
+    "@opentui/core": "^0.1.95",
     "chalk": "^5.3.0"
   },
   "lint-staged": {

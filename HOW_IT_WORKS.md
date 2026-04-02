@@ -6,10 +6,26 @@ Claude Code's companion system generates your pet's visual traits (species, rari
 
 ## What any-buddy Does
 
-1. **You pick** your desired species, rarity, eyes, and hat through an interactive TUI
+1. **You pick** your desired species, rarity, eyes, and hat through an interactive builder TUI (or sequential prompts on Node)
 2. **Brute-force search** finds a replacement salt string that produces your chosen pet when combined with your real user ID (simple searches take milliseconds; shiny/legendary/custom stats can take minutes)
 3. **Binary patch** replaces the salt in the Claude Code binary using an atomic rename, with a backup created first
 4. **Auto-repair hook** (optional) installs a `SessionStart` hook in `~/.claude/settings.json` that re-applies the patch after Claude Code updates
+
+## Interactive Builder
+
+When running under Bun with a TTY (70+ columns, 18+ rows), the tool launches an interactive builder powered by [OpenTUI](https://opentui.com):
+
+- **Left panel**: Selection lists for species, eyes, rarity, hats, shiny, and optional stat customization
+- **Right panel**: Live ASCII art preview with stat bar visualization that updates in real-time
+- **Navigation**: Arrow keys scroll within a section, Tab/Enter advance to the next, Shift+Tab goes back, Esc cancels
+- **Confirmation**: After the last field, Enter triggers a confirm step (Enter/Y to apply, Esc/N to go back)
+- **Disabled sections**: Hat is disabled for common rarity, peak/dump are disabled unless stats are set to "Customize" -- with inline help messages explaining why
+
+If the builder can't launch (no Bun, no TTY, terminal too small), the tool falls back to `@inquirer/prompts` sequential selection with a warning to install Bun.
+
+## Runtime Detection
+
+The CLI entry point (`cli.ts`) starts with `#!/usr/bin/env node`. When it detects it's running under Node (not Bun), it attempts to re-execute itself under Bun using `spawnSync` with `stdio: 'inherit'` for full TTY passthrough. This is skipped for `help` and `apply --silent` (hook context, where speed matters). The `__ANYBUDDY_NO_REEXEC=1` env var prevents infinite re-exec loops.
 
 ## Hash Functions
 

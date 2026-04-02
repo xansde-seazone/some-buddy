@@ -21,11 +21,13 @@
 npx any-buddy@latest
 ```
 
-That's it. Follow the prompts.
+That's it. If Bun is installed, you get the full interactive builder with live preview. Otherwise you'll see sequential prompts with a note to install Bun.
 
 <p align="center">
-  <img src="assets/demo.svg" alt="Demo" width="700">
+  <img src="assets/builder.png" alt="Interactive Builder" width="700">
 </p>
+
+The builder lets you browse species, eyes, rarity, hats, and stats with a live ASCII art preview that updates as you scroll. Navigate with arrow keys, Tab/Enter to advance, Esc to cancel.
 
 ## Install
 
@@ -41,7 +43,7 @@ cd any-buddy && pnpm install && pnpm link --global
 ### Requirements
 
 - **Node.js >= 20**
-- **Bun** -- for hash computation (typically already installed with Claude Code)
+- **Bun** -- for the interactive builder TUI and correct hash computation (typically already installed with Claude Code). Without Bun, the tool falls back to basic sequential prompts.
 - **Claude Code** -- installed via any standard method
 
 ### Platform Support
@@ -120,7 +122,7 @@ See [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for the full technical deep-dive on hashi
 ## Known Limitations
 
 - **macOS**: Binary is ad-hoc re-signed after patching. If Claude Code won't launch, run `any-buddy restore`
-- **Bun required**: Needed for matching Claude Code's wyhash (auto-detected, usually already installed)
+- **Bun recommended**: Required for the interactive builder and correct wyhash computation. Without Bun, falls back to sequential prompts with FNV-1a (Node-based installs)
 - **Salt dependent**: If Anthropic changes the salt string, the tool will detect this and warn you
 - **Stats**: You pick peak/dump stats, but exact values are seed-determined
 

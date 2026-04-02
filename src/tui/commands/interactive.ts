@@ -29,39 +29,11 @@ import {
   selectHat,
   selectStat,
 } from '../prompts.ts';
+import { allTraitsFlagged } from '../builder/state.ts';
 
 const MIN_SALT_COUNT = platform() === 'win32' ? 1 : 3;
 
-export async function runInteractive(flags: CliFlags = {}): Promise<void> {
-  banner();
-
-  const preflight = runPreflight({ requireBinary: true });
-  if (!preflight.ok || !preflight.binaryPath) {
-    process.exit(1);
-  }
-  const userId = preflight.userId;
-  const binaryPath = preflight.binaryPath;
-  console.log(chalk.dim(`  User ID: ${userId.slice(0, 12)}...`));
-  console.log(chalk.dim(`  Binary:  ${binaryPath} (salt found ${preflight.saltCount}x)`));
-
-  const useNodeHash = isNodeRuntime(binaryPath);
-  if (useNodeHash) {
-    console.log(chalk.dim('  Runtime: Node (using FNV-1a hash — npm install detected)'));
-  } else if (preflight.bunVersion) {
-    console.log(chalk.dim(`  Bun:     v${preflight.bunVersion}`));
-  }
-  console.log();
-
-  const currentBones = roll(userId, ORIGINAL_SALT, { useNodeHash }).bones;
-  showPet(currentBones, 'Your current default pet');
-
-  const existingConfig = loadPetConfig();
-  if (existingConfig?.salt && existingConfig.salt !== ORIGINAL_SALT) {
-    const patchedBones = roll(userId, existingConfig.salt, { useNodeHash }).bones;
-    showPet(patchedBones, 'Your active patched pet');
-  }
-
-  // Selection flow
+async function runSequentialSelection(flags: CliFlags): Promise<DesiredTraits> {
   console.log(chalk.bold('  Choose your new pet:\n'));
 
   const species = validateFlag('species', flags.species, SPECIES) ?? (await selectSpecies());
@@ -93,7 +65,111 @@ export async function runInteractive(flags: CliFlags = {}): Promise<void> {
       (await selectStat('Worst stat', peak ?? undefined));
   }
 
-  const desired: DesiredTraits = { species, eye, hat, rarity, shiny, peak, dump };
+  return { species, eye, hat, rarity, shiny, peak, dump };
+}
+
+function buildDesiredFromFlags(flags: CliFlags): DesiredTraits {
+  const species = validateFlag('species', flags.species, SPECIES);
+  const eye = validateFlag('eye', flags.eye, EYES);
+  const rarity = validateFlag('rarity', flags.rarity, RARITIES);
+  const hat =
+    rarity === 'common' ? ('none' as const) : (validateFlag('hat', flags.hat, HATS) ?? 'crown');
+
+  return {
+    species: species ?? SPECIES[0],
+    eye: eye ?? EYES[0],
+    rarity: rarity ?? RARITIES[0],
+    hat: hat ?? 'crown',
+    shiny: flags.shiny ?? false,
+    peak: validateFlag('peak', flags.peak, STAT_NAMES) ?? null,
+    dump: validateFlag('dump', flags.dump, STAT_NAMES) ?? null,
+  };
+}
+
+async function selectTraits(flags: CliFlags): Promise<DesiredTraits> {
+  if (allTraitsFlagged(flags) && flags.yes) {
+    return buildDesiredFromFlags(flags);
+  }
+
+  // Try the OpenTUI builder
+  try {
+    const { canUseBuilder, runBuilder } = await import('../builder/index.ts');
+    if (await canUseBuilder()) {
+      const result = await runBuilder(flags);
+      if (result === null) {
+        throw new CancelledError();
+      }
+      return result;
+    }
+  } catch (err) {
+    if (err instanceof CancelledError) throw err;
+    // OpenTUI import failed (e.g. running on Node) — fall through to sequential
+  }
+
+  // Show warning if Bun is not available
+  if (typeof globalThis.Bun === 'undefined') {
+    console.log(
+      chalk.yellow(
+        '  \u26A0  Bun is not installed — using basic prompts.\n' +
+          '     Install Bun (https://bun.sh) for the interactive builder\n' +
+          '     with live preview, and for correct hash cracking.\n',
+      ),
+    );
+  }
+
+  // Fallback: sequential prompts
+  return runSequentialSelection(flags);
+}
+
+class CancelledError extends Error {
+  constructor() {
+    super('Cancelled');
+    this.name = 'CancelledError';
+  }
+}
+
+export async function runInteractive(flags: CliFlags = {}): Promise<void> {
+  banner();
+
+  const preflight = runPreflight({ requireBinary: true });
+  if (!preflight.ok || !preflight.binaryPath) {
+    process.exit(1);
+  }
+  const userId = preflight.userId;
+  const binaryPath = preflight.binaryPath;
+  console.log(chalk.dim(`  User ID: ${userId.slice(0, 12)}...`));
+  console.log(chalk.dim(`  Binary:  ${binaryPath} (salt found ${preflight.saltCount}x)`));
+
+  const useNodeHash = isNodeRuntime(binaryPath);
+  if (useNodeHash) {
+    console.log(chalk.dim('  Runtime: Node (using FNV-1a hash — npm install detected)'));
+  } else if (preflight.bunVersion) {
+    console.log(chalk.dim(`  Bun:     v${preflight.bunVersion}`));
+  }
+  console.log();
+
+  const currentBones = roll(userId, ORIGINAL_SALT, { useNodeHash }).bones;
+  showPet(currentBones, 'Your current default pet');
+
+  const existingConfig = loadPetConfig();
+  if (existingConfig?.salt && existingConfig.salt !== ORIGINAL_SALT) {
+    const patchedBones = roll(userId, existingConfig.salt, { useNodeHash }).bones;
+    showPet(patchedBones, 'Your active patched pet');
+  }
+
+  // --- Selection flow ---
+  let desired: DesiredTraits;
+  try {
+    desired = await selectTraits(flags);
+  } catch (err) {
+    if (err instanceof CancelledError) {
+      console.log(chalk.dim('\n  Cancelled.\n'));
+      return;
+    }
+    throw err;
+  }
+
+  // Show preview of what was selected (for sequential path and flags path)
   const previewBones = { ...desired, stats: {} };
   showPet(previewBones, 'Your selection');
 

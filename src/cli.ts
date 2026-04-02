@@ -11,6 +11,32 @@ import {
 import { ISSUE_URL, diagnostics } from './constants.ts';
 import type { CliFlags } from './types.ts';
 
+// Re-exec under Bun when running on Node so users get the OpenTUI builder.
+// Skip for `apply --silent` (runs from hooks, speed matters) and `help`.
+if (typeof globalThis.Bun === 'undefined' && process.env.__ANYBUDDY_NO_REEXEC !== '1') {
+  const args = process.argv.slice(2);
+  const isHelp = args.includes('--help') || args.includes('-h') || args[0] === 'help';
+  const isSilentApply = args[0] === 'apply' && args.includes('--silent');
+  if (!isHelp && !isSilentApply) {
+    try {
+      const { spawnSync } = await import('child_process');
+      const { findBunBinary } = await import('./patcher/binary-finder.ts');
+      const bunPath = findBunBinary();
+      // Verify bun is callable
+      const ver = spawnSync(bunPath, ['--version'], { stdio: 'pipe', timeout: 5000 });
+      if (ver.status === 0) {
+        const { status } = spawnSync(bunPath, [process.argv[1], ...args], {
+          stdio: 'inherit',
+          env: { ...process.env, __ANYBUDDY_NO_REEXEC: '1' },
+        });
+        process.exit(status ?? 0);
+      }
+    } catch {
+      // Bun not available — continue under Node with fallback TUI
+    }
+  }
+}
+
 function parseArgs(argv: string[]): { command: string | undefined; flags: CliFlags } {
   const args = argv.slice(2);
   const flags: CliFlags = {};

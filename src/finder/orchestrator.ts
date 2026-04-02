@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import os from 'os';
@@ -9,7 +10,10 @@ import { isNodeRuntime } from '@/patcher/salt-ops.js';
 import { estimateAttempts } from './estimator.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const WORKER_PATH = join(__dirname, 'worker.js');
+// Support both source (.ts via bun) and compiled (.js via node) paths
+const WORKER_PATH = existsSync(join(__dirname, 'worker.ts'))
+  ? join(__dirname, 'worker.ts')
+  : join(__dirname, 'worker.js');
 
 function getCoreCount(): number {
   if (typeof os.availableParallelism === 'function') return os.availableParallelism();
