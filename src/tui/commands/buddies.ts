@@ -153,12 +153,14 @@ export async function runBuddies(): Promise<void> {
 
   // Update config
   if (isDefault) {
-    if (config) {
-      config.previousSalt = config.salt;
-      config.activeProfile = null;
-      config.salt = newSalt;
-      config.appliedAt = new Date().toISOString();
-      savePetConfigV2(config);
+    // Reload fresh so we don't clobber profile writes made by saveProfile(outgoing) above
+    const freshConfig = loadPetConfigV2();
+    if (freshConfig) {
+      freshConfig.previousSalt = freshConfig.salt;
+      freshConfig.activeProfile = null;
+      freshConfig.salt = newSalt;
+      freshConfig.appliedAt = new Date().toISOString();
+      savePetConfigV2(freshConfig);
     }
   } else {
     switchToProfile(selectedSalt);

@@ -495,9 +495,11 @@ async function applyDesiredTraitsSequential(
     }
   }
 
-  // Update profile with final companion identity (now that rename/personality are done)
+  // Update profile with final companion identity (now that rename/personality are done).
+  // Reload fresh so we don't overwrite concurrent profile writes with a stale snapshot.
   if (profileName) {
-    const saved = configV2.profiles[result.salt];
+    const freshConfig = loadPetConfigV2();
+    const saved = freshConfig?.profiles[result.salt];
     if (saved) {
       saved.name = profileName || getCompanionName() || saved.name;
       saved.personality = getCompanionPersonality() ?? saved.personality;
