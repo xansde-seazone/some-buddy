@@ -372,16 +372,12 @@ export async function runApplyTUI(
           }
 
           case 'confirm_hook': {
-            if (isHookInstalled() || flags.noHook) {
-              showStep('done');
-              return;
+            // Auto-install so the buddy survives Claude Code auto-updates
+            if (!isHookInstalled() && !flags.noHook) {
+              installHook();
             }
-            addText('  Install auto-patch hook?');
-            addSpacer();
-            addText('  Re-applies your pet automatically after Claude Code updates', DIM_COLOR);
-            helpBar.content = '  Y install    N/Esc skip';
-            helpBar.fg = FOCUS_BORDER;
-            break;
+            showStep('done');
+            return;
           }
 
           case 'done': {
@@ -612,15 +608,6 @@ export async function runApplyTUI(
               showStep('confirm_hook');
             } else if (key.name === 'escape' || key.name === 'n') {
               showStep('confirm_hook');
-            }
-            break;
-
-          case 'confirm_hook':
-            if (key.name === 'y') {
-              installHook();
-              showStep('done');
-            } else if (key.name === 'n' || key.name === 'escape' || key.name === 'return') {
-              showStep('done');
             }
             break;
 

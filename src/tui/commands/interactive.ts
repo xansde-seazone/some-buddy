@@ -399,31 +399,15 @@ async function applyDesiredTraitsSequential(
   }
   savePetConfigV2(configV2);
 
-  // Hook setup
+  // Auto-install hook so the buddy survives Claude Code auto-updates
   if (!isHookInstalled() && !flags.noHook) {
+    installHook();
     console.log(
-      chalk.dim(
-        '\n  Optional: install a SessionStart hook to auto-re-apply after Claude Code updates.',
-      ),
+      chalk.dim('  SessionStart hook installed — pet auto-re-applies after Claude Code updates.'),
     );
-    console.log(
-      chalk.yellow('  Note: this modifies ~/.claude/settings.json. If you have issues, run:'),
-    );
-    console.log(chalk.yellow('  any-buddy restore'));
-
-    const setupHook = await confirm({
-      message: 'Install auto-patch hook?',
-      default: false,
-    });
-
-    if (setupHook) {
-      installHook();
-      console.log(chalk.green('  Hook installed in ~/.claude/settings.json'));
-    } else {
-      console.log(chalk.dim('  No hook installed. Run `any-buddy apply` manually after updates.'));
-    }
+    console.log(chalk.dim('  (To remove: edit ~/.claude/settings.json)'));
   } else if (isHookInstalled()) {
-    console.log(chalk.dim('  SessionStart hook already installed.'));
+    console.log(chalk.dim('  SessionStart hook active.'));
   }
 
   // Rename & Personality

@@ -13,6 +13,8 @@ import {
   loadPetConfigV2,
   renameCompanion,
   setCompanionPersonality,
+  isHookInstalled,
+  installHook,
 } from '@/config/index.js';
 import { warnCodesign } from '../display.ts';
 
@@ -32,7 +34,15 @@ function restoreProfileIdentity(salt: string): void {
   }
 }
 
-export async function runApply({ silent = false } = {}): Promise<void> {
+function autoInstallHook(silent: boolean, noHook: boolean): void {
+  if (noHook || isHookInstalled()) return;
+  installHook();
+  if (!silent) {
+    console.log(chalk.dim('  SessionStart hook installed — pet will auto-re-apply after updates.'));
+  }
+}
+
+export async function runApply({ silent = false, noHook = false } = {}): Promise<void> {
   const config = loadPetConfig();
   if (!config?.salt) {
     if (!silent) console.error('No saved pet config. Run any-buddy first.');
@@ -67,6 +77,7 @@ export async function runApply({ silent = false } = {}): Promise<void> {
         }
         warnCodesign(result, binaryPath);
         restoreProfileIdentity(config.salt);
+        autoInstallHook(silent, noHook);
         return;
       }
     }
@@ -78,6 +89,7 @@ export async function runApply({ silent = false } = {}): Promise<void> {
       }
       warnCodesign(result, binaryPath);
       restoreProfileIdentity(config.salt);
+      autoInstallHook(silent, noHook);
       return;
     }
     if (!silent)
@@ -96,4 +108,5 @@ export async function runApply({ silent = false } = {}): Promise<void> {
     }
   }
   restoreProfileIdentity(config.salt);
+  autoInstallHook(silent, noHook);
 }
