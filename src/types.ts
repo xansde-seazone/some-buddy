@@ -1,154 +1,55 @@
-export type Species =
-  | 'duck'
-  | 'goose'
-  | 'blob'
-  | 'cat'
-  | 'dragon'
-  | 'octopus'
-  | 'owl'
-  | 'penguin'
-  | 'turtle'
-  | 'snail'
-  | 'ghost'
-  | 'axolotl'
-  | 'capybara'
-  | 'cactus'
-  | 'robot'
-  | 'rabbit'
-  | 'mushroom'
-  | 'chonk';
-
-export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-
-export type Eye = '·' | '✦' | '×' | '◉' | '@' | '°';
-
-export type Hat =
-  | 'none'
-  | 'crown'
-  | 'tophat'
-  | 'propeller'
-  | 'halo'
-  | 'wizard'
-  | 'beanie'
-  | 'tinyduck';
-
-export type StatName = 'DEBUGGING' | 'PATIENCE' | 'CHAOS' | 'WISDOM' | 'SNARK';
-
-export interface Bones {
-  species: Species;
-  rarity: Rarity;
-  eye: Eye;
-  hat: Hat;
-  shiny: boolean;
-  stats: Partial<Record<StatName, number>>;
+// A single 12×5 ASCII frame with per-char 256-color map
+export interface Frame {
+  ascii: string[]; // exactly 5 strings, each 12 chars wide (may be padded)
+  colors: (number | null)[][]; // 5 rows × 12 cols, values 0-255 or null (inherit terminal)
 }
 
-export interface RollResult {
-  bones: Bones;
-  inspirationSeed: number;
+// Rotating idle phrases + conditional reactions
+export interface Voice {
+  personality: string; // free-form tone label (e.g. "sarcastic")
+  phrases: string[]; // idle rotation pool (may be empty)
+  reactions: {
+    branch_changed?: string[];
+    cwd_changed?: string[];
+    model_changed?: string[];
+    time_morning?: string[]; // 5:00-11:59
+    time_afternoon?: string[]; // 12:00-17:59
+    time_evening?: string[]; // 18:00-23:59
+    time_night?: string[]; // 0:00-4:59
+  };
 }
 
-export interface DesiredTraits {
-  species: Species;
-  rarity: Rarity;
-  eye: Eye;
-  hat: Hat;
-  shiny: boolean;
-  peak: StatName | null;
-  dump: StatName | null;
+// A user-created buddy
+export interface Buddy {
+  name: string; // free-form, unique within user collection, non-empty
+  eyes: string; // single char placeholder substituted into frames
+  frames: Frame[]; // >= 1 frame
+  voice: Voice;
 }
 
-export interface FinderResult {
-  salt: string;
-  attempts: number;
-  elapsed: number;
-  totalAttempts?: number;
-  workers?: number;
+// Persisted app state
+export interface AppState {
+  activeBuddy: string | null; // name of active buddy, or null
+  lastContext: {
+    // last context seen, for reaction diff
+    cwd: string | null;
+    branch: string | null;
+    model: string | null;
+  };
+  refreshCount: number; // monotonic counter for rotation
 }
 
-export interface FinderProgress {
-  attempts: number;
-  elapsed: number;
-  rate: number;
-  expected: number;
-  pct: number;
-  eta: number;
-  workers: number;
+// Installation record
+export interface InstallState {
+  installed: boolean;
+  installedAt: string | null; // ISO timestamp
+  claudeSettingsPath: string | null;
 }
 
-export interface SaltState {
-  salt: string | null;
-  patched: boolean;
-  offsets: number[];
-}
-
-export interface PatchResult {
-  replacements: number;
-  verified: boolean;
-  backupPath: string;
-  codesigned: boolean;
-  codesignError: string | null;
-}
-
-export interface PreflightResult {
-  ok: boolean;
-  binaryPath: string | null;
-  userId: string;
-  saltCount: number;
-  bunVersion: string | null;
-}
-
-export interface PetConfig {
-  salt: string;
-  previousSalt?: string;
-  species?: Species;
-  rarity?: Rarity;
-  eye?: Eye;
-  hat?: Hat;
-  appliedTo?: string;
-  appliedAt?: string;
-  restored?: boolean;
-}
-
-export interface CliFlags {
-  species?: string;
-  rarity?: string;
-  eye?: string;
-  hat?: string;
-  name?: string;
-  personality?: string;
-  preset?: string;
-  shiny?: boolean;
-  peak?: string;
-  dump?: string;
-  silent?: boolean;
-  noHook?: boolean;
-  yes?: boolean;
-  all?: boolean;
-}
-
-export type RngFunction = () => number;
-
-export interface ProfileData {
-  salt: string;
-  species: Species;
-  rarity: Rarity;
-  eye: Eye;
-  hat: Hat;
-  shiny: boolean;
-  stats: Partial<Record<StatName, number>>;
-  name: string | null;
-  personality: string | null;
-  createdAt: string;
-}
-
-export interface PetConfigV2 {
-  version: 2;
-  activeProfile: string | null; // salt of the active profile (null = original)
-  salt: string;
-  previousSalt?: string;
-  profiles: Record<string, ProfileData>; // keyed by salt
-  appliedTo?: string;
-  appliedAt?: string;
-  restored?: boolean;
+// Backup metadata
+export interface BackupMeta {
+  path: string;
+  sha256: string;
+  createdAt: string; // ISO timestamp
+  kind: 'original' | 'rotating';
 }

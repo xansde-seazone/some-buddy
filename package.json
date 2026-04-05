@@ -1,10 +1,10 @@
 {
-  "name": "any-buddy",
-  "version": "2.1.4",
-  "description": "Pick any Claude Code companion pet you want",
+  "name": "my-buddy",
+  "version": "3.0.0-alpha.0",
+  "description": "Safe, customizable ASCII buddy for Claude Code statusLine — no binary patching",
   "type": "module",
   "bin": {
-    "any-buddy": "./dist/cli.js"
+    "my-buddy": "./dist/cli.js"
   },
   "files": [
     "dist/",
