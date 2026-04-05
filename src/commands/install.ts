@@ -22,7 +22,7 @@ interface ClaudeSettings {
 }
 
 function buildStatusLineConfig(): StatusLineConfig {
-  const cliPath = new URL('./cli.js', import.meta.url).pathname;
+  const cliPath = new URL('../cli.js', import.meta.url).pathname;
   return { type: 'command', command: `node ${cliPath}`, padding: 0 };
 }
 
