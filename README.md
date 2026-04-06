@@ -45,7 +45,9 @@ my-buddy install          # Adicionar statusLine ao settings.json do Claude Code
 my-buddy uninstall        # Remover statusLine, restaurar settings anteriores
 my-buddy panic            # Emergência: restaurar settings ao estado original absoluto
 my-buddy status           # Mostrar estado da instalação e caminhos
-my-buddy sync             # Calcular XP a partir das sessões do Claude Code (em breve)
+my-buddy sync             # Calcular XP a partir das sessões do Claude Code
+my-buddy xp               # Dashboard completo de progressão
+my-buddy xp-event <n> <v> # Adicionar XP por evento externo
 ```
 
 ## Como funciona
@@ -113,7 +115,16 @@ Cada frame é uma grade de 12×5 caracteres. O campo `colors` é uma matriz 5×1
 
 ## Changelog
 
-### `002-xp-system` — Sistema de XP e layout expandido *(em desenvolvimento)*
+### `003-progression` — Progressão completa: dashboard, atributos, badges e voz *(em desenvolvimento)*
+
+Spec: [`specs/003-progression/spec.md`](specs/003-progression/spec.md)
+
+- Dashboard `my-buddy xp` com nível, XP, streak, atributos e badges
+- 4 atributos derivados de uso: focus, velocity, efficiency, consistency (0–100)
+- 8 badges de conquista únicos (first sync, streaks, atributos altos, níveis)
+- Voz expandida: buddy reage a level up, badge, milestone de streak e retorno após inatividade
+
+### `002-xp-system` — Sistema de XP e layout expandido
 
 Spec: [`specs/002-xp-system/spec.md`](specs/002-xp-system/spec.md)
 
