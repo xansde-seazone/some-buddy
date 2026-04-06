@@ -41,39 +41,39 @@ describe('levels: levelFromXP boundary values', () => {
     expect(r.level).toBe(1);
     expect(r.name).toBe('Apprentice');
     expect(r.minXP).toBe(0);
-    expect(r.nextMinXP).toBe(500);
+    expect(r.nextMinXP).toBe(100);
   });
 
-  it('499 XP → still level 1', async () => {
+  it('99 XP → still level 1', async () => {
     const { levelFromXP } = await import('../src/xp/levels.js');
-    expect(levelFromXP(499).level).toBe(1);
+    expect(levelFromXP(99).level).toBe(1);
   });
 
-  it('500 XP → level 2 (Practitioner)', async () => {
+  it('100 XP → level 2 (Apprentice)', async () => {
     const { levelFromXP } = await import('../src/xp/levels.js');
-    const r = levelFromXP(500);
+    const r = levelFromXP(100);
     expect(r.level).toBe(2);
-    expect(r.name).toBe('Practitioner');
-    expect(r.nextMinXP).toBe(1500);
+    expect(r.name).toBe('Apprentice');
+    expect(r.nextMinXP).toBe(220);
   });
 
-  it('1500 XP → level 3 (Craftsman)', async () => {
+  it('880 XP → level 6 (Practitioner)', async () => {
     const { levelFromXP } = await import('../src/xp/levels.js');
-    expect(levelFromXP(1500).level).toBe(3);
-    expect(levelFromXP(1500).name).toBe('Craftsman');
+    expect(levelFromXP(880).level).toBe(6);
+    expect(levelFromXP(880).name).toBe('Practitioner');
   });
 
-  it('15000 XP → level 6 (Maestro), no nextMinXP', async () => {
+  it('87000 XP → level 30 (Maestro), no nextMinXP', async () => {
     const { levelFromXP } = await import('../src/xp/levels.js');
-    const r = levelFromXP(15000);
-    expect(r.level).toBe(6);
+    const r = levelFromXP(87000);
+    expect(r.level).toBe(30);
     expect(r.name).toBe('Maestro');
     expect(r.nextMinXP).toBeNull();
   });
 
-  it('99999 XP → still level 6', async () => {
+  it('999999 XP → still level 30', async () => {
     const { levelFromXP } = await import('../src/xp/levels.js');
-    expect(levelFromXP(99999).level).toBe(6);
+    expect(levelFromXP(999999).level).toBe(30);
   });
 });
 
@@ -82,18 +82,18 @@ describe('levels: levelFromXP boundary values', () => {
 // ---------------------------------------------------------------------------
 
 describe('levels: xpProgress', () => {
-  it('750 XP → level 2, fraction = 0.25', async () => {
+  it('160 XP → level 2 (Apprentice), correct fraction', async () => {
     const { xpProgress } = await import('../src/xp/levels.js');
-    // Level 2: 500-1499, range = 1000. 750-500 = 250, 250/1000 = 0.25
-    const p = xpProgress(750);
-    expect(p.current).toBe(250);
-    expect(p.required).toBe(1000);
-    expect(p.fraction).toBeCloseTo(0.25, 5);
+    // Level 2: minXP=100, nextMinXP=220, range=120. current=160-100=60, fraction=60/120=0.5
+    const p = xpProgress(160);
+    expect(p.current).toBe(60);
+    expect(p.required).toBe(120);
+    expect(p.fraction).toBeCloseTo(0.5, 5);
   });
 
   it('fraction is 1.0 at max level', async () => {
     const { xpProgress } = await import('../src/xp/levels.js');
-    const p = xpProgress(20000);
+    const p = xpProgress(100000);
     expect(p.fraction).toBe(1.0);
     expect(p.required).toBeNull();
   });

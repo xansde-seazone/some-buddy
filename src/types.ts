@@ -16,6 +16,11 @@ export interface Voice {
     time_afternoon?: string[]; // 12:00-17:59
     time_evening?: string[]; // 18:00-23:59
     time_night?: string[]; // 0:00-4:59
+    // Progression reactions
+    level_up?: string[];
+    badge_unlocked?: string[];
+    streak_milestone?: string[];
+    idle_return?: string[];
   };
 }
 
@@ -49,6 +54,10 @@ export interface AppState {
   };
   refreshCount: number; // monotonic counter for rotation
   xp: XPState;
+  colors: { W: number; U: number; B: number; R: number; G: number };
+  colorPoints: number; // unspent action points
+  badges: string[]; // badge IDs (empty for now)
+  pendingPhrase: string | null; // progression phrase to show once, then clear
 }
 
 // Installation record

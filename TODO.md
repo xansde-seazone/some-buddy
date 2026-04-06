@@ -1,70 +1,52 @@
-# TODO — próxima sessão
+# TODO — 003-progression
 
-## 1. Acompanhamento de XP (`my-buddy status` / `my-buddy xp`)
+## Feito
 
-O `status` atual não mostra nada de XP. O usuário precisa de feedback sobre sua progressão.
+- [x] `my-buddy xp` — dashboard de progressão (FR-01, FR-02, FR-03)
 
-- [ ] Expandir `my-buddy status` (ou criar `my-buddy xp`) para exibir:
-  - XP total, nível atual e nome do nível (ex: `Lv.3 Expert`)
-  - Barra de progresso textual até o próximo nível (ex: `[████░░░░] 1.240 / 2.000 XP`)
-  - Streak atual (ex: `Streak: 5 dias úteis`)
-  - Data do último sync e do último dia ativo
-  - XP por fonte: sessões vs eventos (ex: `Sessions: 980 XP  |  Events: 260 XP`)
-- [ ] Decidir: ampliar `status` com seção de XP, ou comando separado `xp`?
+## Próximo
 
----
+### Batch 2 — Sistema de 30 níveis
 
-## 2. Melhoria das mensagens do buddy
+- [ ] Refatorar `levels.ts`: 30 níveis, 6 tiers, títulos por tier
+- [ ] Atualizar `levelFromXP()` e `xpProgress()` para 30 entradas
+- [ ] Curva de XP provisória (calibrar depois): ~1 dia pro lv.2, ~1 semana pro lv.5, ~1 mês pro lv.10
+- [ ] Atualizar `state.ts` — parse continua funcionando (retrocompat)
+- [ ] Atualizar testes existentes que dependem dos 6 níveis antigos
+- [ ] `tests/batch5.test.ts` — testes do novo sistema de níveis
 
-A `Voice` já tem `reactions` para branch/cwd/model/horário, mas o pool de `phrases` é preenchido manualmente pelo usuário na criação. Fica pobre.
+### Batch 3 — Cores de personalidade (WUBRG)
 
-- [ ] **Geração assistida de frases**: `my-buddy voice <nome>` abre um fluxo interativo onde o usuário descreve a personalidade e recebe sugestões de frases para aprovar/editar
-- [ ] **Reações por nível**: buddy comenta quando sobe de nível (ex: `reactions.level_up`)
-- [ ] **Reações por streak**: mensagens especiais no 3º, 7º, 14º dia de streak
-- [ ] **Reação idle por XP baixo**: se o usuário ficou muitos dias sem sessões, buddy comenta
-- [ ] Definir quais novos campos entram em `Voice.reactions` no `types.ts`
+- [ ] Adicionar `colors: { W, U, B, R, G }` e `colorPoints` em `AppState` + `types.ts`
+- [ ] `src/xp/colors.ts` — definições, validação, distribuição de pontos
+- [ ] `src/commands/colors.ts` — `my-buddy colors` (view) e `my-buddy colors W+3 U-1` (distribute)
+- [ ] Registrar `colors` no `cli.ts`
+- [ ] Atualizar `state.ts` — parse colors/colorPoints com defaults (0/0)
+- [ ] Atualizar `sync.ts` — ao detectar level up, adicionar 1 ou 3 pontos
+- [ ] Atualizar `xp.ts` — seção de personalidade no dashboard
+- [ ] `tests/batch5.test.ts` — adicionar testes de cores
 
----
+### Batch 4 — Badges
 
-## 3. Atributos
+- [ ] `src/xp/badges.ts` — 8 badge definitions + `evaluateBadges()`
+- [ ] Adicionar `badges: string[]` em `AppState` + `types.ts`
+- [ ] Atualizar `sync.ts` — avaliar badges ao final, imprimir desbloqueios
+- [ ] Atualizar `xp.ts` — seção de badges no dashboard
+- [ ] Atualizar `state.ts` — parse badges com default []
+- [ ] `tests/batch6.test.ts` — testes de badges
 
-O sistema atual tem apenas XP/nível. Atributos dariam dimensões separadas de progressão.
+### Batch 5 — Voz expandida
 
-Questões a decidir antes de implementar:
-- [ ] Quais atributos? Sugestão inicial: `focus` (sessões longas), `velocity` (output tokens), `efficiency` (cache hit rate), `consistency` (streak)
-- [ ] Atributos são derivados automaticamente do uso (calculados no sync) ou alocados manualmente pelo usuário?
-- [ ] Onde exibir: só em `status/xp`, ou também na statusLine?
-- [ ] Impactam algo no buddy (frases, animações) ou são cosméticos?
+- [ ] Adicionar chaves `level_up`, `badge_unlocked`, `streak_milestone`, `idle_return` em `Voice.reactions`
+- [ ] Atualizar `voice.ts` — prioridade de frases de progressão
+- [ ] Salvar pending phrase em `AppState` durante sync
+- [ ] Limpar phrase após renderizada na statusLine
+- [ ] Atualizar template de `my-buddy new`
+- [ ] `tests/batch7.test.ts` — testes de voz + integração
 
-Após decisão:
-- [ ] Adicionar `attributes: Record<string, number>` em `XPState`
-- [ ] Calcular no `runSync` baseado nas métricas das sessões
-- [ ] Exibir em `status`
+## Ordem de execução
 
----
-
-## 4. Badges
-
-O sistema de badges precisa ser desenhado do zero para o my-buddy v3.
-
-Questões a decidir:
-- [ ] Badges são conquistas únicas (unlock uma vez) ou repetíveis (ex: "completou 10 sessões esta semana")?
-- [ ] Gatilhos: baseados em XP total, streak, atributos, ou eventos manuais?
-- [ ] Onde ficam persistidos: em `AppState` ou arquivo separado `badges.json`?
-- [ ] Buddy reage ao unlock de badge com frase especial?
-
-Após decisão:
-- [ ] Definir lista inicial de badges (sugestão: 5–8 para começar)
-- [ ] Adicionar `badges: string[]` (IDs de badges desbloqueados) em `AppState`
-- [ ] Motor de avaliação chamado no final do `runSync`
-- [ ] Exibir badges desbloqueados em `status`
-- [ ] Teste de cobertura para motor de badges
-
----
-
-## Ordem sugerida
-
-1. `status` com XP (sem decisões de design — fácil de fechar)
-2. Decidir atributos → implementar
-3. Decidir badges → implementar
-4. Melhoria de mensagens (depende de badges/atributos para as novas reações)
+1. Batch 2 (níveis) — base pra tudo
+2. Batch 3 (cores) — depende dos níveis pra calcular pontos
+3. Batch 4 (badges) — depende de níveis e cores
+4. Batch 5 (voz) — depende de tudo acima

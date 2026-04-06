@@ -43,6 +43,10 @@ function buildTemplate(sanitizedName: string): Buddy {
         model_changed: ['mudou de modelo, hein'],
         time_morning: ['bom dia!'],
         time_night: ['hora de dormir'],
+        level_up: ['subi de nivel!', 'evoluindo...'],
+        badge_unlocked: ['conquista nova!'],
+        streak_milestone: ['que sequencia!'],
+        idle_return: ['voltou! senti saudades'],
       },
     },
   };

@@ -207,12 +207,12 @@ describe('xp-event: level recalculated after XP addition', () => {
     const { cmdXPEvent } = await import('../src/commands/xp-event.js');
     const { loadState } = await import('../src/render/state.js');
 
-    // 500 XP is the threshold for level 2
-    const result = await cmdXPEvent('big-event', '500');
+    // 100 XP is the threshold for level 2
+    const result = await cmdXPEvent('big-event', '100');
     expect(result).toBe(0);
 
     const state = await loadState();
-    expect(state.xp.xp).toBe(500);
+    expect(state.xp.xp).toBe(100);
     expect(state.xp.level).toBe(2);
   });
 
