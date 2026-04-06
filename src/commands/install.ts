@@ -9,6 +9,8 @@ import {
   restoreFromBackup,
 } from '../backup.js';
 import type { InstallState } from '../types.js';
+import { buildHooksConfig, mergeHooks } from '../hooks/config.js';
+import type { HookRule } from '../hooks/config.js';
 
 interface StatusLineConfig {
   type: 'command';
@@ -18,6 +20,7 @@ interface StatusLineConfig {
 
 interface ClaudeSettings {
   statusLine?: StatusLineConfig;
+  hooks?: Record<string, HookRule[]>;
   [key: string]: unknown;
 }
 
@@ -42,6 +45,7 @@ async function promptConfirm(question: string): Promise<boolean> {
 
 export async function cmdInstall(opts?: { dryRun?: boolean; yes?: boolean }): Promise<number> {
   const claudeSettingsPath = paths.claudeSettings();
+  const cliPath = new URL('../cli.js', import.meta.url).pathname;
   const statusLineConfig = buildStatusLineConfig();
 
   // Load existing settings or start fresh
@@ -65,7 +69,12 @@ export async function cmdInstall(opts?: { dryRun?: boolean; yes?: boolean }): Pr
     }
   }
 
-  const merged: ClaudeSettings = { ...existing, statusLine: statusLineConfig };
+  const hooksConfig = buildHooksConfig(cliPath);
+  const merged: ClaudeSettings = {
+    ...existing,
+    statusLine: statusLineConfig,
+    hooks: mergeHooks(existing.hooks as Record<string, HookRule[]> | undefined, hooksConfig),
+  };
 
   // FR-029: validate roundtrip
   JSON.parse(JSON.stringify(merged));

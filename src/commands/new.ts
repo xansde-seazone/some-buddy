@@ -107,6 +107,13 @@ export async function cmdNew(name: string): Promise<number> {
   console.log(`Created buddy: ${buddyPath}`);
   console.log(`Edit your buddy with: $EDITOR ${buddyPath}`);
   console.log(`Activate with: my-buddy use ${sanitized}`);
+  console.log('');
+  console.log('StatusLine layout (5 lines):');
+  console.log('  Line 1  [12-char ASCII]  →  buddy name');
+  console.log('  Line 2  [12-char ASCII]  →  level  (e.g. "Lv.1 Apprentice")');
+  console.log('  Line 3  [12-char ASCII]  →  speech phrase');
+  console.log('  Line 4  [12-char ASCII]  →  (empty — visual breathing room)');
+  console.log('  Line 5  [12-char ASCII]  →  model + XP bar  (e.g. "[Sonnet · High] [████░░░░] Nvl 1")');
 
   const editor = detectEditor();
   if (editor && process.stdin.isTTY) {

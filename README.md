@@ -1,156 +1,153 @@
 <p align="center">
-  <img src="assets/header.svg" alt="any-buddy" width="700">
+  <img src="assets/header.svg" alt="my-buddy" width="700">
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/any-buddy"><img src="https://img.shields.io/npm/v/any-buddy?color=cb3837&label=npm" alt="npm"></a>
-  <a href="https://github.com/cpaczek/any-buddy/actions"><img src="https://img.shields.io/github/actions/workflow/status/cpaczek/any-buddy/ci.yml?label=CI" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-WTFPL-brightgreen" alt="License: WTFPL"></a>
   <img src="https://img.shields.io/node/v/any-buddy" alt="Node version">
 </p>
 
 <p align="center">
-  Pick any Claude Code companion pet you want. Choose your species, rarity, eyes, hat, and name.
+  Companion pet ASCII customizável na statusLine do Claude Code — sem binary patching.
 </p>
 
 ---
 
+## O que é
+
+**my-buddy** é uma reescrita segura do any-buddy. Em vez de injetar código no binário do Claude Code, usa a API pública de `statusLine` para exibir um pet ASCII animado com cores e voz no rodapé da TUI.
+
+Sem Bun. Sem binary patching. Sem risco de quebrar sua instalação.
+
 ## Quick Start
 
 ```bash
-npx any-buddy@latest
+# Criar seu primeiro buddy
+my-buddy new capivara
+
+# Ativar
+my-buddy use capivara
+
+# Instalar na statusLine do Claude Code
+my-buddy install
+
+# Reiniciar o Claude Code — o buddy aparece no rodapé
 ```
 
-That's it. If Bun is installed, you get the full interactive builder with live preview. Otherwise you'll see sequential prompts with a note to install Bun.
-
-<p align="center">
-  <img src="assets/builder.png" alt="Interactive Builder" width="700">
-</p>
-
-The builder lets you browse species, eyes, rarity, hats, and stats with a live ASCII art preview that updates as you scroll. Navigate with arrow keys, Tab/Enter to advance, Esc to cancel.
-
-## Install
+## Comandos
 
 ```bash
-# npm (global)
-npm install -g any-buddy
-
-# or clone
-git clone https://github.com/cpaczek/any-buddy.git
-cd any-buddy && pnpm install && pnpm link --global
+my-buddy new <nome>       # Criar buddy a partir de template editável
+my-buddy use <nome>       # Ativar buddy
+my-buddy list             # Listar todos os buddies (destaca o ativo)
+my-buddy preview <nome>   # Renderizar buddy no terminal
+my-buddy install          # Adicionar statusLine ao settings.json do Claude Code
+my-buddy uninstall        # Remover statusLine, restaurar settings anteriores
+my-buddy panic            # Emergência: restaurar settings ao estado original absoluto
+my-buddy status           # Mostrar estado da instalação e caminhos
+my-buddy sync             # Calcular XP a partir das sessões do Claude Code (em breve)
 ```
 
-### Requirements
+## Como funciona
+
+O Claude Code suporta um campo `statusLine` no `settings.json` que executa um comando externo a cada atualização da TUI (~300ms debounced), passando contexto via stdin e renderizando o stdout no rodapé.
+
+O my-buddy usa isso para exibir arte ASCII animada com cores 256-color e frases contextuais sem nenhuma modificação ao binário do Claude Code.
+
+## Formato do buddy
+
+Cada buddy é um arquivo JSON em `~/.my-buddy/buddies/<nome>.json`:
+
+```json
+{
+  "name": "capivara",
+  "eyes": "·",
+  "frames": [
+    {
+      "ascii": [
+        " /\\_/\\      ",
+        " ( · · )    ",
+        " (  ^  )    ",
+        " / > < \\    ",
+        " ~~~~~~     "
+      ],
+      "colors": [
+        [null, null, null, null, null, null, null, null, null, null, null, null],
+        [null, null, null, 220, null, 220, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null, null, null, null, null]
+      ]
+    }
+  ],
+  "voice": {
+    "personality": "tranquilo",
+    "phrases": ["zzz...", "observando...", "tudo calmo"],
+    "reactions": {
+      "branch_changed": ["branch nova, eita"],
+      "cwd_changed": ["pra onde tô indo?"],
+      "model_changed": ["mudou de modelo, hein"],
+      "time_morning": ["bom dia!"],
+      "time_night": ["hora de dormir"]
+    }
+  }
+}
+```
+
+Cada frame é uma grade de 12×5 caracteres. O campo `colors` é uma matriz 5×12 de índices de cor ANSI 256-color (0–255) ou `null` para cor padrão do terminal. Múltiplos frames criam animação idle.
+
+## Segurança e reversibilidade
+
+- Escrita atômica em todos os arquivos (temp + rename)
+- Backup imutável do `settings.json` original (nunca sobrescrito)
+- Backup rotativo por instalação (usado pelo `uninstall`)
+- `my-buddy panic` restaura o estado original independente de qualquer corrupção interna
+- Nenhuma modificação ao binário do Claude Code
+
+## Requisitos
 
 - **Node.js >= 20**
-- **Bun** -- for the interactive builder TUI and correct hash computation (typically already installed with Claude Code). Without Bun, the tool falls back to basic sequential prompts.
-- **Claude Code** -- installed via any standard method
+- **Claude Code** instalado
 
-### Platform Support
+---
 
-| Platform | Status | Notes |
-|----------|--------|-------|
-| Linux | Tested | Auto-detects `~/.local/share/claude/versions/` |
-| macOS | Tested | Auto-detects + ad-hoc re-signs after patching |
-| Windows | Tested | Works with npm-based installs (`cli.js`) |
+## Changelog
 
-> Set `CLAUDE_BINARY=/path/to/binary` if auto-detection fails.
+### `002-xp-system` — Sistema de XP e layout expandido *(em desenvolvimento)*
 
-## Usage
+Spec: [`specs/002-xp-system/spec.md`](specs/002-xp-system/spec.md)
 
-```bash
-any-buddy                    # Start screen — build, browse presets, or switch buddies
-```
+- Layout da statusLine expandido para 5 colunas: nome, nível, frase, respiro, modelo+XP
+- Sistema de XP global baseado em leitura dos JSONLs de sessão (`~/.claude/projects/**/*.jsonl`)
+- Mecânica: streak de dias úteis (com feriados BR), eficiência de modelo, cache efficiency bonus
+- Comando `my-buddy sync` para cálculo incremental de XP
+- Auto-sync via hooks `Stop` e `UserPromptSubmit`
+- Subsistema de XP por eventos de boas práticas (SDD completo, delegação de subagentes)
+- 6 níveis: Apprentice → Practitioner → Craftsman → Engineer → Architect → Maestro
 
-The start screen lets you pick between:
-- **Build your own** — full interactive builder with live ASCII preview
-- **Browse presets** — 23 curated themed builds with animated preview
-- **Saved buddies** — switch between your saved pets (shown when you have saves)
+### `001-statusline-pet` — Bootstrap do my-buddy v3
 
-After picking your pet, the entire flow stays in the TUI — salt search with progress bar, naming, personality, patching, and hook setup.
+Spec: [`specs/001-statusline-pet/spec.md`](specs/001-statusline-pet/spec.md)
 
-```bash
-any-buddy current            # Show your current pet
-any-buddy preview            # Browse without applying
-any-buddy apply              # Re-apply after Claude Code update
-any-buddy restore            # Restore original pet
-any-buddy buddies            # Browse and switch between your buddies
-any-buddy rehatch            # Delete companion, re-hatch via /buddy
-```
+- Reescrita completa do any-buddy sem binary patching
+- Integração via API pública `statusLine` do Claude Code
+- Buddy com arte ASCII 12×5, cores 256-color por caractere, animação idle, voz com reações contextuais
+- Comandos: `new`, `use`, `list`, `preview`, `install`, `uninstall`, `panic`, `status`
+- Backups atômicos com restauração de emergência (`panic`)
 
-### Non-Interactive Mode
+---
 
-Skip prompts with flags (bypasses the start screen):
+## Créditos (any-buddy legado)
 
-```bash
-any-buddy -s dragon -r legendary -e '✦' -t wizard --shiny --name Draco -y
-any-buddy --preset "Arcane Dragon" -y
-```
+A base de sprites, presets e parte do sistema de geração vem do any-buddy original:
 
-<details>
-<summary><strong>All CLI Flags</strong></summary>
-
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--species <name>` | `-s` | Species (duck, goose, blob, cat, dragon, octopus, owl, penguin, turtle, snail, ghost, axolotl, capybara, cactus, robot, rabbit, mushroom, chonk) |
-| `--rarity <level>` | `-r` | Rarity (common, uncommon, rare, epic, legendary) |
-| `--eye <char>` | `-e` | Eye style (` ·  ✦  ×  ◉  @  ° `) |
-| `--hat <name>` | `-t` | Hat (crown, tophat, propeller, halo, wizard, beanie, tinyduck) |
-| `--preset <name>` | | Use a curated preset (e.g., "Arcane Dragon") |
-| `--name <name>` | `-n` | Rename companion |
-| `--personality <desc>` | `-p` | Set personality (controls speech bubble) |
-| `--shiny` | | Require shiny (~100x longer search) |
-| `--peak <stat>` | | Best stat (DEBUGGING, PATIENCE, CHAOS, WISDOM, SNARK) |
-| `--dump <stat>` | | Worst stat |
-| `--yes` | `-y` | Skip confirmations |
-| `--no-hook` | | Don't offer auto-patch hook |
-| `--silent` | | Suppress output (for hooks) |
-
-</details>
-
-## All 18 Species
-
-<p align="center">
-  <img src="assets/species.svg" alt="All 18 species" width="700">
-</p>
-
-## Customization Options
-
-<p align="center">
-  <img src="assets/options.svg" alt="Customization options" width="700">
-</p>
-
-## Restoring
-
-```bash
-any-buddy restore
-```
-
-Patches the salt back to original and removes the auto-patch hook. Your saved buddies are preserved — use `any-buddy buddies` to reactivate one later.
-
-## How It Works
-
-See [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for the full technical deep-dive on hashing, binary patching, the salt search algorithm, and the auto-patch hook.
-
-## Known Limitations
-
-- **macOS**: Binary is ad-hoc re-signed after patching. If Claude Code won't launch, run `any-buddy restore`
-- **Bun recommended**: Required for the interactive builder and correct wyhash computation. Without Bun, falls back to sequential prompts with FNV-1a (Node-based installs)
-- **Salt dependent**: If Anthropic changes the salt string, the tool will detect this and warn you
-- **Stats**: You pick peak/dump stats, but exact values are seed-determined
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, project structure, and how to submit changes.
-
-## Credits
-
-- [@jtuskan](https://github.com/jtuskan) -- Windows support for npm-based installs ([#5](https://github.com/cpaczek/any-buddy/pull/5))
-- [@aaronepinto](https://github.com/aaronepinto) -- macOS ad-hoc code signing ([#3](https://github.com/cpaczek/any-buddy/pull/3))
-- [@joshpocock](https://github.com/joshpocock) -- FNV-1a hash support for Node runtime ([#8](https://github.com/cpaczek/any-buddy/pull/8))
-- [@Co-Messi](https://github.com/Co-Messi) -- Multi-worker parallelism + early-exit optimization ([#11](https://github.com/cpaczek/any-buddy/pull/11)), curated preset builds ([#15](https://github.com/cpaczek/any-buddy/pull/15))
-- [@Ahmad8864](https://github.com/Ahmad8864) -- 8-core cap idea ([#10](https://github.com/cpaczek/any-buddy/pull/10)), buddy profiles ([#17](https://github.com/cpaczek/any-buddy/pull/17))
+- [@cpaczek](https://github.com/cpaczek) — projeto original any-buddy
+- [@jtuskan](https://github.com/jtuskan) — suporte Windows
+- [@aaronepinto](https://github.com/aaronepinto) — code signing macOS
+- [@joshpocock](https://github.com/joshpocock) — FNV-1a hash para Node runtime
+- [@Co-Messi](https://github.com/Co-Messi) — paralelismo multi-worker, preset builds
+- [@Ahmad8864](https://github.com/Ahmad8864) — buddy profiles
 
 ## License
 
-[WTFPL](LICENSE) -- Do What The Fuck You Want To Public License.
+[WTFPL](LICENSE) — Do What The Fuck You Want To Public License.

@@ -154,7 +154,7 @@ export async function runStartTUI(buddyCount: number): Promise<StartAction | nul
 
         // Help bar
         Text({
-          content: '↑↓ navigate    Enter select    Esc quit',
+          content: '↑↓ navigate    Enter select    Esc/Q quit',
           fg: DIM_COLOR,
           height: 1,
         }),
@@ -181,7 +181,7 @@ export async function runStartTUI(buddyCount: number): Promise<StartAction | nul
           renderCards();
         } else if (key.name === 'return') {
           finish(entries[selected].value);
-        } else if (key.name === 'escape') {
+        } else if (key.name === 'escape' || key.name === 'q') {
           finish(null);
         }
       }

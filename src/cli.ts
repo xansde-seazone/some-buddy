@@ -9,6 +9,8 @@ import { cmdStatus } from './commands/status.js';
 import { cmdInstall } from './commands/install.js';
 import { cmdUninstall } from './commands/uninstall.js';
 import { cmdPanic } from './commands/panic.js';
+import { cmdSync } from './commands/sync.js';
+import { cmdXPEvent } from './commands/xp-event.js';
 
 const require = createRequire(import.meta.url);
 
@@ -27,6 +29,9 @@ Usage:
   my-buddy install [--dry-run] [--yes]   Inject statusLine into Claude settings
   my-buddy uninstall [--yes]             Restore settings from pre-install backup
   my-buddy panic [--yes]                 EMERGENCY: restore Claude settings to original state
+
+  my-buddy sync             Sync XP from Claude Code sessions
+  my-buddy xp-event <name> <xp>  Register XP from an external event
 
   my-buddy --help | -h      Show this usage
   my-buddy --version | -v   Show version`);
@@ -123,6 +128,20 @@ async function main(): Promise<void> {
       exitCode = await cmdPanic({
         yes: argv.includes('--yes') || argv.includes('-y'),
       });
+      break;
+    }
+    case 'sync': {
+      exitCode = await cmdSync();
+      break;
+    }
+    case 'xp-event': {
+      const eventName = args[1];
+      const xpAmount = args[2];
+      if (!eventName || !xpAmount) {
+        console.error('Usage: my-buddy xp-event <event-name> <xp-amount>');
+        process.exit(1);
+      }
+      exitCode = await cmdXPEvent(eventName, xpAmount);
       break;
     }
     default: {

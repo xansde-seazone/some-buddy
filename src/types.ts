@@ -27,6 +27,17 @@ export interface Buddy {
   voice: Voice;
 }
 
+// XP and progression state
+export interface XPState {
+  xp: number; // total accumulated XP
+  level: number; // 1-6 (calculated from xp)
+  streak: number; // consecutive weekdays with activity
+  lastActiveDate: string | null; // "YYYY-MM-DD", last weekday with a session
+  lastSyncedAt: string | null; // ISO timestamp of last sync
+  lastProcessedCursors: Record<string, number>; // filepath → bytes read
+  eventXP: number; // XP from events (additive, never overwritten by sync)
+}
+
 // Persisted app state
 export interface AppState {
   activeBuddy: string | null; // name of active buddy, or null
@@ -37,6 +48,7 @@ export interface AppState {
     model: string | null;
   };
   refreshCount: number; // monotonic counter for rotation
+  xp: XPState;
 }
 
 // Installation record

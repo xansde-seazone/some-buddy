@@ -31,10 +31,15 @@ export async function cmdUse(name: string): Promise<number> {
   }
 
   const existing = await readJSON<AppState>(paths.state());
+  const defaultXP: AppState['xp'] = {
+    xp: 0, level: 1, streak: 0, lastActiveDate: null,
+    lastSyncedAt: null, lastProcessedCursors: {}, eventXP: 0,
+  };
   const next: AppState = {
     activeBuddy: sanitized,
     lastContext: existing?.lastContext ?? { cwd: null, branch: null, model: null },
     refreshCount: existing?.refreshCount ?? 0,
+    xp: existing?.xp ?? defaultXP,
   };
 
   await paths.ensureHomeStructure();

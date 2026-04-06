@@ -1,12 +1,14 @@
 import type { Buddy } from '../types.js';
 import { readJSON } from '../fs-atomic.js';
 import { paths } from '../paths.js';
-import { parseClaudeInput } from './context.js';
+import { parseClaudeInput, shortModelName } from './context.js';
 import { loadState, saveState } from './state.js';
 import { detectContextChanges } from './voice.js';
 import { pickFrame, substituteEyes } from './frames.js';
 import { colorizeFrame } from './color.js';
 import { pickPhrase } from './voice.js';
+import { levelFromXP, xpProgress } from '../xp/levels.js';
+import { buildRightColumn, mergeColumns } from './layout.js';
 
 /**
  * Loads a buddy from disk by name.
@@ -26,10 +28,11 @@ export async function loadBuddy(name: string): Promise<Buddy | null> {
 
 /**
  * Main render entry point. Parses stdin, loads state and buddy, renders the
- * ASCII frame with optional speech bubble, persists updated state, and returns
- * the final string for Claude Code's statusLine.
+ * ASCII frame merged with the right-column layout, persists updated state,
+ * and returns the final string for Claude Code's statusLine.
  *
- * Always exits cleanly: any error returns an empty string.
+ * Output is always exactly 5 lines (joined by \n).
+ * Any error returns an empty string.
  */
 export async function renderStatusLine(stdin: string): Promise<string> {
   try {
@@ -61,17 +64,34 @@ export async function renderStatusLine(stdin: string): Promise<string> {
     // 9. Pick optional speech phrase
     const phrase = pickPhrase(buddy.voice, state, ctxChanges, new Date());
 
-    // 10. Persist updated state (fire-and-forget acceptable; awaited for correctness)
+    // 10. Build right column
+    const lvl = levelFromXP(state.xp.xp);
+    const progress = xpProgress(state.xp.xp);
+    const modelName = shortModelName(curr.modelDisplayName, curr.model);
+    const rightCol = buildRightColumn(
+      buddy.name,
+      lvl,
+      phrase,
+      modelName,
+      progress.fraction,
+    );
+
+    // 11. Merge ASCII + right column (always 5 lines)
+    const merged = mergeColumns(frameLines, rightCol);
+
+    // 12. Persist updated state
     const nextState = {
       ...state,
       refreshCount: state.refreshCount + 1,
-      lastContext: curr,
+      lastContext: {
+        cwd: curr.cwd,
+        branch: curr.branch,
+        model: curr.model,
+      },
     };
     await saveState(nextState);
 
-    // Join: 5 frame lines + optional speech line
-    const lines = phrase !== null ? [...frameLines, phrase] : frameLines;
-    return lines.join('\n');
+    return merged.join('\n');
   } catch {
     return '';
   }
