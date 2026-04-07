@@ -13,6 +13,7 @@ import { cmdSync } from './commands/sync.js';
 import { cmdXPEvent } from './commands/xp-event.js';
 import { cmdXP } from './commands/xp.js';
 import { cmdColors } from './commands/colors.js';
+import { cmdEdit } from './commands/edit.js';
 
 const require = createRequire(import.meta.url);
 
@@ -23,6 +24,7 @@ function printUsage(): void {
 
 Usage:
   my-buddy new <name>       Create a new buddy from template
+  my-buddy edit [name]       Open visual buddy editor in browser
   my-buddy list             List all buddies (active marked with *)
   my-buddy use <name>       Set the active buddy
   my-buddy preview <name>   Render buddy frames to stdout
@@ -100,6 +102,10 @@ async function main(): Promise<void> {
         process.exit(1);
       }
       exitCode = await cmdNew(name);
+      break;
+    }
+    case 'edit': {
+      exitCode = await cmdEdit(args[1]);
       break;
     }
     case 'list': {

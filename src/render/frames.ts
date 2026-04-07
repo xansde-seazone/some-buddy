@@ -9,6 +9,15 @@ const EYE_PLACEHOLDER = '·';
  * the ascii rows. Colors are copied by reference (not mutated).
  */
 export function substituteEyes(frame: Frame, eyeChar: string): Frame {
+  if (eyeChar.length >= 2) {
+    // 2-char eyes: replace every '··' (two consecutive placeholders) with the 2 eye chars
+    const doubleplaceholder = EYE_PLACEHOLDER + EYE_PLACEHOLDER;
+    return {
+      ascii: frame.ascii.map((row) => row.split(doubleplaceholder).join(eyeChar.slice(0, 2))),
+      colors: frame.colors,
+    };
+  }
+  // 1-char eyes: replace every single '·' with the eye char
   const safeEye = eyeChar[0] ?? EYE_PLACEHOLDER;
   return {
     ascii: frame.ascii.map((row) => row.split(EYE_PLACEHOLDER).join(safeEye)),
