@@ -116,6 +116,16 @@ Cada frame é uma grade de 12×5 caracteres. O campo `colors` é uma matriz 5×1
 
 ## Changelog
 
+### `004-editor` — Editor visual de buddies no browser *(em desenvolvimento)*
+
+Spec: [`specs/004-editor/spec.md`](specs/004-editor/spec.md)
+
+- Editor HTML visual com grid 12×5, paleta de 256 cores ANSI e preview ao vivo
+- Seleção de área com click-and-drag para colorir múltiplas células
+- Onion skin para alinhamento de animações entre frames
+- Editor de voice (personality, phrases, reactions) integrado
+- Servidor local temporário — abre no browser, salva via POST, encerra automaticamente
+
 ### `003-progression` — Progressão completa: 30 níveis, cores WUBRG, badges e voz
 
 Spec: [`specs/003-progression/spec.md`](specs/003-progression/spec.md)
