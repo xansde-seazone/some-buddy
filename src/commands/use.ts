@@ -40,6 +40,10 @@ export async function cmdUse(name: string): Promise<number> {
     lastContext: existing?.lastContext ?? { cwd: null, branch: null, model: null },
     refreshCount: existing?.refreshCount ?? 0,
     xp: existing?.xp ?? defaultXP,
+    colors: existing?.colors ?? { W: 0, U: 0, B: 0, R: 0, G: 0 },
+    colorPoints: existing?.colorPoints ?? 0,
+    badges: existing?.badges ?? [],
+    pendingPhrase: existing?.pendingPhrase ?? null,
   };
 
   await paths.ensureHomeStructure();

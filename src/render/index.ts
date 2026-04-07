@@ -88,6 +88,7 @@ export async function renderStatusLine(stdin: string): Promise<string> {
         branch: curr.branch,
         model: curr.model,
       },
+      pendingPhrase: state.pendingPhrase && phrase === state.pendingPhrase ? null : state.pendingPhrase,
     };
     await saveState(nextState);
 

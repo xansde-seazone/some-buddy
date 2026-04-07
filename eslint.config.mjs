@@ -27,4 +27,9 @@ export default tseslint.config(
   {
     ignores: ['dist/', 'scripts/', 'node_modules/', 'lib/', 'bin/', 'legacy/'],
   },
+  {
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+    },
+  },
 );

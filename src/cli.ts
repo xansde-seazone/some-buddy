@@ -11,6 +11,8 @@ import { cmdUninstall } from './commands/uninstall.js';
 import { cmdPanic } from './commands/panic.js';
 import { cmdSync } from './commands/sync.js';
 import { cmdXPEvent } from './commands/xp-event.js';
+import { cmdXP } from './commands/xp.js';
+import { cmdColors } from './commands/colors.js';
 
 const require = createRequire(import.meta.url);
 
@@ -25,6 +27,7 @@ Usage:
   my-buddy use <name>       Set the active buddy
   my-buddy preview <name>   Render buddy frames to stdout
   my-buddy status           Show install state and paths
+  my-buddy xp              Show XP progression dashboard
 
   my-buddy install [--dry-run] [--yes]   Inject statusLine into Claude settings
   my-buddy uninstall [--yes]             Restore settings from pre-install backup
@@ -32,6 +35,7 @@ Usage:
 
   my-buddy sync             Sync XP from Claude Code sessions
   my-buddy xp-event <name> <xp>  Register XP from an external event
+  my-buddy colors [W+N U-N ...]  View or distribute personality colors
 
   my-buddy --help | -h      Show this usage
   my-buddy --version | -v   Show version`);
@@ -122,6 +126,14 @@ async function main(): Promise<void> {
     }
     case 'status': {
       exitCode = await cmdStatus();
+      break;
+    }
+    case 'xp': {
+      exitCode = await cmdXP();
+      break;
+    }
+    case 'colors': {
+      exitCode = await cmdColors(argv);
       break;
     }
     case 'panic': {

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { levelFromXP, LEVELS } from '../src/xp/levels.js';
 import * as os from 'node:os';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -208,16 +209,16 @@ describe('layout: renderXPBar', () => {
 describe('layout: buildRightColumn', () => {
   it('11. returns array of exactly 5 strings', async () => {
     const { buildRightColumn } = await import('../src/render/layout.js');
-    const result = buildRightColumn('Capivara', { level: 2, name: 'Practitioner' }, 'zzz...', 'Sonnet', null, 0.5);
+    const result = buildRightColumn('Capivara', { level: 2, name: 'Apprentice' }, 'zzz...', 'Sonnet', null, 0.5);
     expect(result).toHaveLength(5);
     result.forEach((s) => expect(typeof s).toBe('string'));
   });
 
   it('12. line 0 is buddy name, line 1 is level, line 2 is quoted phrase, line 3 is empty, line 4 has model and XP bar', async () => {
     const { buildRightColumn } = await import('../src/render/layout.js');
-    const result = buildRightColumn('Capivara', { level: 2, name: 'Practitioner' }, 'zzz...', 'Sonnet', null, 0.5);
+    const result = buildRightColumn('Capivara', { level: 2, name: 'Apprentice' }, 'zzz...', 'Sonnet', null, 0.5);
     expect(result[0]).toBe('Capivara');
-    expect(result[1]).toBe('Lv.2 Practitioner');
+    expect(result[1]).toBe('Lv.2 Apprentice');
     expect(result[2]).toBe('"zzz..."');
     expect(result[3]).toBe('');
     expect(result[4]).toContain('Sonnet');
@@ -252,7 +253,7 @@ describe('layout: mergeColumns', () => {
   it('16. non-empty right → ASCII + separator + text', async () => {
     const { mergeColumns } = await import('../src/render/layout.js');
     const ascii = [' /\\_/\\      ', ' ( · · )    ', ' (  ^  )    ', ' / > < \\    ', ' ~~~~~~     '];
-    const right = ['Capivara', 'Lv.2 Practitioner', '"zzz..."', '', '[Sonnet] [████░░░░] Nvl 2'];
+    const right = ['Capivara', 'Lv.2 Apprentice', '"zzz..."', '', '[Sonnet] [████░░░░] Nvl 2'];
     const merged = mergeColumns(ascii, right);
     // Line 0 should be ascii + 2 spaces + right text
     expect(merged[0]).toBe(' /\\_/\\        Capivara');
@@ -290,5 +291,48 @@ describe('render: renderStatusLine layout', () => {
     // XP bar characters should be present
     expect(line5).toMatch(/[█░]/u);
     expect(line5).toContain('Nvl');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// render: tier names match level system through full render
+// ---------------------------------------------------------------------------
+
+describe('render: tier names match level system through full render', () => {
+  const tierBoundaries = [
+    { tierName: 'Apprentice',   xp:     0 },
+    { tierName: 'Practitioner', xp:   880 },
+    { tierName: 'Craftsman',    xp:  3400 },
+    { tierName: 'Engineer',     xp:  9260 },
+    { tierName: 'Architect',    xp: 21800 },
+    { tierName: 'Maestro',      xp: 47900 },
+  ];
+
+  for (const { tierName, xp } of tierBoundaries) {
+    it(`19. full render at XP=${xp} contains tier name "${tierName}" from levelFromXP`, async () => {
+      await setupBuddyAndState('capivara', ['observando...'], xp);
+      vi.resetModules();
+
+      const { renderStatusLine } = await import('../src/render/index.js');
+      const stdin = makeStdin({ modelId: 'claude-sonnet-4-6', displayName: 'Sonnet 4.6' });
+      const output = await renderStatusLine(stdin);
+
+      const stripped = stripAnsi(output);
+      const expectedName = levelFromXP(xp).name;
+      expect(expectedName).toBe(tierName);
+      expect(stripped).toContain(tierName);
+    });
+  }
+
+  it('20. buildRightColumn always uses tier name from levelFromXP (guard against hardcoded names)', async () => {
+    const { buildRightColumn } = await import('../src/render/layout.js');
+
+    const probelevels = [1, 2, 5, 6, 10, 11, 15, 16, 20, 21, 25, 26, 30];
+    for (const lvl of probelevels) {
+      const levelEntry = LEVELS[lvl - 1]!;
+      const info = levelFromXP(levelEntry.minXP);
+      const lines = buildRightColumn('Test', { level: info.level, name: info.name }, null, 'Sonnet', 0);
+      expect(lines[1]).toBe(`Lv.${info.level} ${info.name}`);
+    }
   });
 });
