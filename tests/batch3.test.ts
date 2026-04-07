@@ -182,7 +182,7 @@ describe('xp-event: valid event adds XP', () => {
   it('accumulates multiple events correctly', async () => {
     vi.resetModules();
     const { cmdXPEvent } = await import('../src/commands/xp-event.js');
-    const { loadState } = await import('../src/render/state.js');
+    await import('../src/render/state.js');
 
     await cmdXPEvent('first-event', '50');
     vi.resetModules();

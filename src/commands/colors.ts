@@ -3,7 +3,6 @@ import {
   parseColorActions,
   distributePoints,
   COLOR_KEYS,
-  COLOR_NAMES,
   MAX_COLOR_VALUE,
 } from '../xp/colors.js';
 

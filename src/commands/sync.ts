@@ -139,7 +139,7 @@ export async function cmdSync(): Promise<number> {
     for (const badgeId of newBadges) {
       const badge = BADGES.find(b => b.id === badgeId);
       if (badge) {
-        console.log(`Badge desbloqueado: ${badge.name}!`);
+        console.log(`🏆 Badge desbloqueado: ${badge.name}!`);
       }
     }
 

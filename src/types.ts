@@ -35,7 +35,7 @@ export interface Buddy {
 // XP and progression state
 export interface XPState {
   xp: number; // total accumulated XP
-  level: number; // 1-6 (calculated from xp)
+  level: number; // 1-30 (calculated from xp)
   streak: number; // consecutive weekdays with activity
   lastActiveDate: string | null; // "YYYY-MM-DD", last weekday with a session
   lastSyncedAt: string | null; // ISO timestamp of last sync

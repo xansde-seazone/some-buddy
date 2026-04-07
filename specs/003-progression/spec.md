@@ -50,8 +50,8 @@ Comando dedicado para inspeção detalhada da progressão. **Já implementado.**
 - **FR-01**: ✅ `my-buddy xp` exibe nível, XP atual/próximo, barra de progresso com percentual
 - **FR-02**: ✅ Exibe streak atual e data da última sessão/sync
 - **FR-03**: ✅ Exibe breakdown de XP por fonte: sessões vs eventos
-- **FR-04**: Exibe as 5 cores com barra e valor numérico + pontos livres
-- **FR-05**: Exibe badges desbloqueados vs total disponível
+- **FR-04**: ✅ Exibe as 5 cores com barra e valor numérico + pontos livres
+- **FR-05**: ✅ Exibe badges desbloqueados vs total disponível
 
 ---
 
@@ -86,10 +86,10 @@ Implementação inicial: definir tabela provisória com gaps crescentes que resp
 
 ### Requisitos funcionais
 
-- **FR-06**: 30 níveis definidos em `levels.ts`, cada um com `{ level, name, minXP }`
-- **FR-07**: `levelFromXP()` e `xpProgress()` continuam funcionando, agora com 30 entradas
-- **FR-08**: Título vem do tier (a cada 5 níveis), não do nível individual
-- **FR-09**: Dashboard, statusLine e sync usam o novo sistema de 30 níveis sem quebrar
+- **FR-06**: ✅ 30 níveis definidos em `levels.ts`, cada um com `{ level, name, minXP }`
+- **FR-07**: ✅ `levelFromXP()` e `xpProgress()` continuam funcionando, agora com 30 entradas
+- **FR-08**: ✅ Título vem do tier (a cada 5 níveis), não do nível individual
+- **FR-09**: ✅ Dashboard, statusLine e sync usam o novo sistema de 30 níveis sem quebrar
 
 ---
 
@@ -129,13 +129,13 @@ Comando `my-buddy colors` (ou integrado ao flow de level up):
 
 ### Requisitos funcionais
 
-- **FR-10**: `AppState.colors: { W, U, B, R, G }` (inteiros 0–20) + `AppState.colorPoints` (pontos livres)
-- **FR-11**: Ao subir de nível no sync, adicionar pontos automaticamente (1 ou 3)
-- **FR-12**: `my-buddy colors` exibe estado atual + pontos livres
-- **FR-13**: `my-buddy colors W+3 U-1` distribui pontos com validação
-- **FR-14**: Dashboard (`my-buddy xp`) exibe as 5 cores com barras + pontos livres
-- **FR-15**: Cores são persistidas e nunca resetam
-- **FR-16**: Retrocompatível — estado existente sem `colors`/`colorPoints` carrega com zeros
+- **FR-10**: ✅ `AppState.colors: { W, U, B, R, G }` (inteiros 0–20) + `AppState.colorPoints` (pontos livres)
+- **FR-11**: ✅ Ao subir de nível no sync, adicionar pontos automaticamente (1 ou 3)
+- **FR-12**: ✅ `my-buddy colors` exibe estado atual + pontos livres
+- **FR-13**: ✅ `my-buddy colors W+3 U-1` distribui pontos com validação
+- **FR-14**: ✅ Dashboard (`my-buddy xp`) exibe as 5 cores com barras + pontos livres
+- **FR-15**: ✅ Cores são persistidas e nunca resetam
+- **FR-16**: ✅ Retrocompatível — estado existente sem `colors`/`colorPoints` carrega com zeros
 
 ---
 
@@ -158,11 +158,11 @@ Conquistas únicas (unlock uma vez, nunca revogadas). Avaliadas ao final de cada
 
 ### Requisitos funcionais
 
-- **FR-17**: Badges persistidos em `AppState.badges: string[]` (IDs dos desbloqueados)
-- **FR-18**: Motor de avaliação roda ao final de `runSync`, checando cada badge não desbloqueado
-- **FR-19**: Quando um badge é desbloqueado, imprime `🏆 Badge desbloqueado: <nome>!` no stdout do `sync`
-- **FR-20**: Badges exibidos no `my-buddy xp` com checkmark
-- **FR-21**: Badge nunca é revogado (mesmo se condição deixar de ser verdadeira)
+- **FR-17**: ✅ Badges persistidos em `AppState.badges: string[]` (IDs dos desbloqueados)
+- **FR-18**: ✅ Motor de avaliação roda ao final de `runSync`, checando cada badge não desbloqueado
+- **FR-19**: ✅ Quando um badge é desbloqueado, imprime `🏆 Badge desbloqueado: <nome>!` no stdout do `sync`
+- **FR-20**: ✅ Badges exibidos no `my-buddy xp` com checkmark
+- **FR-21**: ✅ Badge nunca é revogado (mesmo se condição deixar de ser verdadeira)
 
 ---
 
@@ -181,12 +181,12 @@ Novas chaves de reação em `Voice.reactions` para o buddy comentar eventos de p
 
 ### Requisitos funcionais
 
-- **FR-22**: Novas chaves adicionadas a `Voice.reactions` em `types.ts`
-- **FR-23**: Quando um evento de progressão ocorre no sync, a frase de reação é salva em `AppState` para ser exibida na próxima renderização da statusLine
-- **FR-24**: A frase de progressão tem prioridade sobre idle phrases e time-of-day (mas perde para context changes)
-- **FR-25**: A frase de progressão é exibida apenas uma vez (limpa após renderizada)
-- **FR-26**: Buddies existentes sem as novas chaves continuam funcionando (retrocompatível — pool vazio = sem reação)
-- **FR-27**: O template padrão de `my-buddy new` inclui exemplos das novas chaves de reação
+- **FR-22**: ✅ Novas chaves adicionadas a `Voice.reactions` em `types.ts`
+- **FR-23**: ✅ Quando um evento de progressão ocorre no sync, a frase de reação é salva em `AppState` para ser exibida na próxima renderização da statusLine
+- **FR-24**: ✅ A frase de progressão tem prioridade sobre idle phrases e time-of-day (mas perde para context changes)
+- **FR-25**: ✅ A frase de progressão é exibida apenas uma vez (limpa após renderizada)
+- **FR-26**: ✅ Buddies existentes sem as novas chaves continuam funcionando (retrocompatível — pool vazio = sem reação)
+- **FR-27**: ✅ O template padrão de `my-buddy new` inclui exemplos das novas chaves de reação
 
 ---
 
@@ -203,9 +203,9 @@ discover JSONL → parse incremental → calculate session XP
 
 ### Requisitos funcionais
 
-- **FR-28**: `runSync` retorna também `newBadges` e `progressionEvents`
-- **FR-29**: Ao detectar level up, adicionar pontos de cor automaticamente (1 normal, 3 milestone)
-- **FR-30**: `evaluateBadges` recebe o estado completo (XP, level, streak, badges existentes, breakdown) e retorna novos badges
+- **FR-28**: ✅ `cmdSync` orquestra avaliação de badges e detecção de eventos de progressão após `runSync`
+- **FR-29**: ✅ Ao detectar level up, adicionar pontos de cor automaticamente (1 normal, 3 milestone)
+- **FR-30**: ✅ `evaluateBadges` recebe o estado completo (XP, level, streak, badges existentes, breakdown) e retorna novos badges
 
 ---
 
